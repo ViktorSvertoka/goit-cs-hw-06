@@ -4,22 +4,19 @@ services:
   webapp:
     build: .
     volumes:
-      - ./web_application:/app
-      - ./storage:/app/storage
+      - ./storage:/data
     ports:
       - '3000:3000'
-      - '6000:6000'
+      - '5000:5000'
     environment:
       - MONGO_PASSWORD=your_mongo_password
     depends_on:
       - mongo
 
   mongo:
-    image: mongo:5.0
+    image: mongo:latest
     ports:
       - '27017:27017'
-    volumes:
-      - mongo_data:/data/db
 
 volumes:
   mongo_data:
