@@ -1,17 +1,17 @@
-FROM python:3.11
+FROM python:3.10
 
-WORKDIR /web_application
+ENV directory /new_directory
+
+WORKDIR $directory
 
 COPY . .
 
-RUN python -m venv venv && \
-    . venv/bin/activate && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 EXPOSE 3000
-EXPOSE 5000
+EXPOSE 6000
 EXPOSE 27017
 
-CMD ["python3", "main.py"]
+ENTRYPOINT ["python", "main.py"]
 
 
