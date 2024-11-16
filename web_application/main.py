@@ -5,8 +5,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from multiprocessing import Process
 import websockets
-from websockets import WebSocketServerProtocol
-from websockets.exceptions import ConnectionClosedOK
 from datetime import datetime
 import json
 from pymongo import MongoClient
@@ -16,21 +14,19 @@ from dotenv import load_dotenv
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-MONGO_URI = os.getenv("MONGO_URI")
-
 
 # Клас для HTTP-сервера
 class HttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_url = urlparse(self.path)
         if parsed_url.path == "/":
-            self.send_html_file("web_application/index.html")
+            self.send_html_file("index.html")
         elif parsed_url.path == "/message.html":
-            self.send_html_file("web_application/message.html")
+            self.send_html_file("message.html")
         elif parsed_url.path.startswith("/static/"):
             self.send_static_file(parsed_url.path[1:])
         else:
-            self.send_html_file("web_application/error.html", 404)
+            self.send_html_file("error.html", 404)
 
     def do_POST(self):
         content_length = int(self.headers["Content-Length"])
@@ -43,7 +39,7 @@ class HttpHandler(BaseHTTPRequestHandler):
         message_data = json.dumps({"username": username, "message": message})
 
         async def send_message():
-            uri = "ws://localhost:5000"
+            uri = "ws://localhost:6000"
             async with websockets.connect(uri) as websocket:
                 await websocket.send(message_data)
 
@@ -74,17 +70,20 @@ class HttpHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(file.read())
         except FileNotFoundError:
-            self.send_html_file("web_application/error.html", 404)
+            self.send_html_file("error.html", 404)
 
 
 # WebSocket-сервер
 class WebSocketServer:
     def __init__(self):
-        self.client = MongoClient(MONGO_URI)
-        self.db = self.client.message_db
-        self.collection = self.db.messages
+        mongo_password = os.getenv("MONGO_PASSWORD")
+        self.client = MongoClient(
+            f"mongodb+srv://data_md:{mongo_password}@cluster777.ax8qp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster777"
+        )
+        self.db = self.client["message_db"]
+        self.collection = self.db["messages"]
 
-    async def ws_handler(self, websocket: WebSocketServerProtocol):
+    async def ws_handler(self, websocket):
         async for message in websocket:
             data = json.loads(message)
             data["date"] = datetime.now().isoformat()
@@ -94,9 +93,9 @@ class WebSocketServer:
 
 async def run_websocket_server():
     server = WebSocketServer()
-    async with websockets.serve(server.ws_handler, "0.0.0.0", 5000):
-        logging.info("WebSocket server started on port 5000")
-        await asyncio.Future()  # Запуск назавжди
+    async with websockets.serve(server.ws_handler, "0.0.0.0", 6000):
+        logging.info("WebSocket server started on port 6000")
+        await asyncio.Future()
 
 
 def start_websocket_server():

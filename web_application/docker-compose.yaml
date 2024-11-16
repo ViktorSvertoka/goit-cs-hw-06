@@ -4,12 +4,13 @@ services:
   webapp:
     build: .
     volumes:
-      - ./web_application:/app/web_application
+      - ./web_application:/app
+      - ./storage:/app/storage
     ports:
       - '3000:3000'
-      - '5000:5000'
+      - '6000:6000'
     environment:
-      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_PASSWORD=your_mongo_password
     depends_on:
       - mongo
 

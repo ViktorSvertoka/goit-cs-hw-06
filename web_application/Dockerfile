@@ -1,18 +1,21 @@
-# Базовий образ
+# Базовый образ
 FROM python:3.11
 
-# Встановлюємо робочу директорію
+# Устанавливаем рабочую директорию
 WORKDIR /web_application
 
-# Копіюємо всі файли до контейнера
+# Копируем все файлы в контейнер
 COPY . .
 
-# Встановлюємо залежності
-RUN pip install --no-cache-dir -r requirements.txt
+# Устанавливаем виртуальное окружение и зависимости
+RUN python -m venv venv && \
+    . venv/bin/activate && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Відкриваємо порти
-EXPOSE 3000 5000
+# Открываем порты
+EXPOSE 3000 6000
 
-# Запускаємо додаток
-CMD ["python", "main.py"]
+# Запускаем приложение
+CMD ["venv/bin/python", "main.py"]
+
 
