@@ -86,9 +86,17 @@ class WebSocketServer:
     async def ws_handler(self, websocket):
         async for message in websocket:
             data = json.loads(message)
-            data["date"] = datetime.now().isoformat()
-            self.collection.insert_one(data)
-            logging.info(f"Saved message: {data}")
+
+            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            message_data = {
+                "date": date,
+                "username": data["username"],
+                "message": data["message"],
+            }
+
+            self.collection.insert_one(message_data)
+            logging.info(f"Saved message: {message_data}")
 
 
 async def run_websocket_server():

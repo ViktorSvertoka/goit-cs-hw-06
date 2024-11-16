@@ -1,23 +1,24 @@
 version: '3.8'
 
 services:
-  webapp:
+  app:
     build: .
-    volumes:
-      - ./storage:/data
     ports:
       - '3000:3000'
-      - '5000:5000'
-    environment:
-      - MONGO_PASSWORD=your_mongo_password
+      - '6000:6000'
     depends_on:
-      - mongo
+      - mongodb
+    environment:
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - .:/web_application
 
-  mongo:
-    image: mongo:latest
+  mongodb:
+    image: mongo:5.0
     ports:
       - '27017:27017'
+    volumes:
+      - ./mongo_data:/data/db
 
 volumes:
   mongo_data:
-    driver: local

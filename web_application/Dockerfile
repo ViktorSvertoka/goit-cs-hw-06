@@ -1,17 +1,25 @@
-FROM python:3.10
+# Використовуємо базовий образ для Python
+FROM python:3.13-slim
 
-ENV directory /new_directory
+# Встановлюємо робочу директорію
+WORKDIR /web_application
 
-WORKDIR $directory
+# Копіюємо файли проекту в контейнер
+COPY . /web_application
 
-COPY . .
+# Встановлюємо залежності
+RUN pip install --no-cache-dir -r /web_application/requirements.txt
 
-RUN pip install -r requirements.txt
+# Встановлюємо змінні середовища для роботи з MongoDB
+ENV MONGO_PASSWORD=your_mongo_password
 
+# Відкриваємо порти для HTTP-сервера (3000) та WebSocket-сервера (6000)
 EXPOSE 3000
 EXPOSE 6000
-EXPOSE 27017
 
-ENTRYPOINT ["python", "main.py"]
+# Команда для запуску додатка
+CMD ["python", "main.py"]
+
+
 
 
