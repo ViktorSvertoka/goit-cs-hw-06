@@ -8,8 +8,6 @@ services:
       - '6000:6000'
     depends_on:
       - mongodb
-    environment:
-      - MONGO_PASSWORD=${MONGO_PASSWORD}
     volumes:
       - .:/web_application
 

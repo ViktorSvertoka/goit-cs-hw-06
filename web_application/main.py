@@ -1,5 +1,4 @@
 import asyncio
-import os
 import logging
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
@@ -8,14 +7,10 @@ import websockets
 from datetime import datetime
 import json
 from pymongo import MongoClient
-from dotenv import load_dotenv
 
-# Завантаження змінних із .env файлу
-load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 
-# Клас для HTTP-сервера
 class HttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_url = urlparse(self.path)
@@ -35,7 +30,6 @@ class HttpHandler(BaseHTTPRequestHandler):
         username = parsed_data.get("username")[0]
         message = parsed_data.get("message")[0]
 
-        # Формування JSON
         message_data = json.dumps({"username": username, "message": message})
 
         async def send_message():
@@ -43,10 +37,8 @@ class HttpHandler(BaseHTTPRequestHandler):
             async with websockets.connect(uri) as websocket:
                 await websocket.send(message_data)
 
-        # Відправлення повідомлення WebSocket-серверу
         asyncio.run(send_message())
 
-        # Відповідь клієнту
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
@@ -73,13 +65,9 @@ class HttpHandler(BaseHTTPRequestHandler):
             self.send_html_file("error.html", 404)
 
 
-# WebSocket-сервер
 class WebSocketServer:
     def __init__(self):
-        mongo_password = os.getenv("MONGO_PASSWORD")
-        self.client = MongoClient(
-            f"mongodb+srv://data_md:{mongo_password}@cluster777.ax8qp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster777"
-        )
+        self.client = MongoClient("mongodb://mongodb:27017/")
         self.db = self.client["message_db"]
         self.collection = self.db["messages"]
 
